@@ -1,0 +1,327 @@
+module digital_clock_ctrl (
+
+    input   wire            clk,
+    input   wire            rst_n,
+    
+    input   wire            flag_switch,
+    input   wire            flag_adjust,
+    input   wire            flag_add,
+    input   wire            flag_sub,
+    
+    output  wire            flag_alarm,
+    
+    output  wire    [23:0]  data
+);
+
+    wire                    sec_cnt_en;
+    wire                    flag_min_add;
+    wire                    flag_min_sub;
+    wire                    flag_hour_add;
+    wire                    flag_hour_sub;
+    wire                    flag_day_add;
+    wire                    flag_day_sub;
+    wire                    flag_mon_add;
+    wire                    flag_mon_sub;
+    wire                    flag_year_add;
+    wire                    flag_year_sub;
+    wire        [1:0]       mux_sel;
+    wire                    alarm_en;
+    wire                    h_adjust_value;
+    wire                    m_adjust_value;
+    wire                    l_adjust_value;
+    wire                    flag_amin_add;
+    wire                    flag_amin_sub;
+    wire                    flag_ahour_add;
+    wire                    flag_ahour_sub;
+    
+    wire        [5:0]       sec;
+    wire                    flag_min;
+    wire        [5:0]       min;
+    wire                    flag_hour;
+    wire        [5:0]       hour;
+    wire                    flag_day;
+    wire        [5:0]       day;
+    wire                    flag_mon;
+    wire        [5:0]       mon;
+    wire                    flag_year;
+    wire        [6:0]       year;
+    wire        [5:0]       asec;
+    wire        [5:0]       amin;
+    wire        [5:0]       ahour;
+    
+    wire        [6:0]       h_cnt;
+    wire        [6:0]       m_cnt;
+    wire        [6:0]       l_cnt;
+    wire        [7:0]       h_bcd;
+    wire        [7:0]       m_bcd;
+    wire        [7:0]       l_bcd;
+    wire        [11:0]      bcd_h;
+    wire        [11:0]      bcd_m;
+    wire        [11:0]      bcd_l;
+    
+    ctrl ctrl_inst(
+
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .flag_switch        (flag_switch),
+            .flag_adjust        (flag_adjust),
+            .flag_add           (flag_add),
+            .flag_sub           (flag_sub),
+            
+            .sec_cnt_en         (sec_cnt_en),
+            
+            .flag_min_add       (flag_min_add),
+            .flag_min_sub       (flag_min_sub),
+            
+            .flag_hour_add      (flag_hour_add),
+            .flag_hour_sub      (flag_hour_sub),
+            
+            .flag_day_add       (flag_day_add),
+            .flag_day_sub       (flag_day_sub),
+            
+            .flag_mon_add       (flag_mon_add),
+            .flag_mon_sub       (flag_mon_sub),
+            
+            .flag_year_add      (flag_year_add),
+            .flag_year_sub      (flag_year_sub),
+            
+            .mux_sel            (mux_sel),
+            .alarm_en           (alarm_en),
+            .h_adjust_value     (h_adjust_value),
+            .m_adjust_value     (m_adjust_value),
+            .l_adjust_value     (l_adjust_value),
+            
+            .flag_amin_add      (flag_amin_add),
+            .flag_amin_sub      (flag_amin_sub),
+            
+            .flag_ahour_add     (flag_ahour_add),
+            .flag_ahour_sub     (flag_ahour_sub)
+        );
+    
+    sec_cnt sec_cnt_inst(
+
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .sec_cnt_en         (sec_cnt_en),
+            
+            .sec                (sec),
+            
+            .flag_min           (flag_min)
+        );
+    
+    min_cnt min_cnt_inst(
+
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .flag_min           (flag_min),
+            
+            .flag_min_add       (flag_min_add),
+            .flag_min_sub       (flag_min_sub),
+            
+            .min                (min),
+            
+            .flag_hour          (flag_hour)
+        );
+        
+    hour_cnt hour_cnt_inst(
+
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .flag_hour          (flag_hour),
+           
+            .flag_hour_add      (flag_hour_add),
+            .flag_hour_sub      (flag_hour_sub),
+            
+            .hour               (hour),
+            .flag_day           (flag_day)
+        );   
+       
+    day_cnt day_cnt_inst(
+
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .flag_day           (flag_day),
+            
+            .flag_day_add       (flag_day_add),
+            .flag_day_sub       (flag_day_sub),
+            
+            .day                (day),
+                
+            .flag_mon           (flag_mon)
+        );  
+       
+    mon_cnt mon_cnt_inst(
+
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .flag_mon           (flag_mon),
+            
+            .flag_mon_add       (flag_mon_add),
+            .flag_mon_sub       (flag_mon_sub),
+            
+            .mon                (mon),
+            .flag_year          (flag_year)
+        );   
+        
+    year_cnt year_cnt_inst(
+
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .flag_year          (flag_year),
+            
+            .flag_year_add      (flag_year_add),
+            .flag_year_sub      (flag_year_sub),
+            
+            .year               (year)
+        );  
+      
+    asec_cnt asec_cnt_inst(
+
+            .asec               (asec)
+        );
+  
+    amin_cnt amin_cnt_inst(
+
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .flag_amin_add      (flag_amin_add),
+            .flag_amin_sub      (flag_amin_sub),
+            
+            .amin               (amin)
+        );  
+
+    ahour_cnt ahour_cnt_inst(
+
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .flag_ahour_add     (flag_ahour_add),
+            .flag_ahour_sub     (flag_ahour_sub),
+            
+            .ahour              (ahour)
+        );  
+  
+    mux3_1 mux3_1_inst(
+
+            .sec                (sec),
+            .min                (min),
+            .hour               (hour),
+            
+            .day                (day),
+            .mon                (mon),
+            .year               (year),
+            
+            .asec               (asec),
+            .amin               (amin),
+            .ahour              (ahour),
+            
+            .mux_sel            (mux_sel),
+            
+            .h_cnt              (h_cnt),
+            .m_cnt              (m_cnt),
+            .l_cnt              (l_cnt)
+        );
+        
+    bintobcd # (
+
+            .BIN_WIDTH          (7),
+            .BCD_WIDTH          (12)
+        )
+        bintobcd_h(
+
+            .bin                (h_cnt),
+            
+            .bcd                (bcd_h)
+        );    
+        
+    assign h_bcd = bcd_h[7:0];
+    
+    bintobcd # (
+
+            .BIN_WIDTH          (7),
+            .BCD_WIDTH          (12)
+        )
+        bintobcd_m(
+
+            .bin                (m_cnt),
+            
+            .bcd                (bcd_m)
+        );    
+        
+    assign m_bcd = bcd_m[7:0];
+    
+    bintobcd # (
+
+            .BIN_WIDTH          (7),
+            .BCD_WIDTH          (12)
+        )
+        bintobcd_l(
+
+            .bin                (l_cnt),
+            
+            .bcd                (bcd_l)
+        );    
+        
+    assign l_bcd = bcd_l[7:0];
+    
+    show_sel show_sel_h(
+    
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .adjust_value       (h_adjust_value),
+            
+            .bcd                (h_bcd),
+            
+            .data               (data[23:16])
+        );
+    
+    show_sel show_sel_m(
+    
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .adjust_value       (m_adjust_value),
+            
+            .bcd                (m_bcd),
+            
+            .data               (data[15:8])
+        );
+    
+    show_sel show_sel_l(
+    
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .adjust_value       (l_adjust_value),
+            
+            .bcd                (l_bcd),
+            
+            .data               (data[7:0])
+        );
+    
+    alarm_ctrl alarm_ctrl_inst(
+
+            .clk                (clk),
+            .rst_n              (rst_n),
+            
+            .min                (min),
+            .amin               (amin),
+            
+            .hour               (hour),
+            .ahour              (ahour),
+            
+            .alarm_en           (alarm_en),
+            
+            .flag_alarm         (flag_alarm)
+        );
+        
+endmodule 
